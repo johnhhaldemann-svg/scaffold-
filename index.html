@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Scaffold Tag Tracker (Mobile)</title>
 
-  <!-- iOS "Add to Home Screen" support -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
@@ -44,7 +43,7 @@
       border-bottom:1px solid var(--line);
       padding: env(safe-area-inset-top) 14px 10px 14px;
     }
-    .appbar h1{ margin:0; font-size:16px; font-weight:900; }
+    .appbar h1{ margin:0; font-size:16px; font-weight:950; }
     .appbar .sub{
       margin-top:4px;
       font-size:12px;
@@ -55,7 +54,7 @@
     .wrap{
       max-width: 980px;
       margin: 0 auto;
-      padding: 12px 14px calc(120px + env(safe-area-inset-bottom)) 14px;
+      padding: 12px 14px calc(140px + env(safe-area-inset-bottom)) 14px;
     }
 
     .card{
@@ -70,7 +69,7 @@
       margin:0 0 10px 0;
       font-size:13px;
       color: var(--muted);
-      font-weight:900;
+      font-weight:950;
       letter-spacing:0.4px;
       text-transform:uppercase;
     }
@@ -83,7 +82,7 @@
       color:var(--ink);
       padding:12px 12px;
       border-radius:12px;
-      font-size:16px; /* prevents iOS zoom */
+      font-size:16px;
       outline:none;
     }
     textarea{ min-height: 88px; resize: vertical; }
@@ -211,6 +210,7 @@
       gap:10px;
       align-items:center;
       justify-content:space-between;
+      flex-wrap:wrap;
     }
     .fab{
       flex:1;
@@ -221,6 +221,7 @@
       border-radius:16px;
       font-size:15px;
       font-weight:950;
+      min-width: 180px;
     }
     .fab-secondary{
       width:auto;
@@ -259,7 +260,7 @@
 <body>
   <div class="appbar">
     <h1>Scaffold Tag Tracker (Mobile)</h1>
-    <div class="sub">Autosaves on your phone • Use “Save to Phone” to download a real file (no printing)</div>
+    <div class="sub">Autosaves on your phone • Save a readable report as a fillable document (HTML)</div>
   </div>
 
   <div class="wrap">
@@ -293,7 +294,7 @@
       </div>
 
       <div class="tiny">
-        Tip: For app-like access: open this page → Share/More → <strong>Add to Home Screen</strong>.
+        Tip: To make it behave like an app: open this page → Share/More → <strong>Add to Home Screen</strong>.
       </div>
     </div>
 
@@ -311,17 +312,16 @@
 
       <div class="btn-row" style="margin-top:12px;">
         <button class="btn" type="button" onclick="addScaffold()">+ Add Scaffold</button>
-        <button class="btn" type="button" onclick="saveToPhoneJSON()">Save to Phone (JSON)</button>
-        <button class="btn-ghost" type="button" onclick="exportCSV()">Export CSV</button>
+        <button class="btn" type="button" onclick="saveFillableReportHTML()">Save Fillable Report (HTML)</button>
+        <button class="btn-ghost" type="button" onclick="savePrintableReportHTML()">Save Printable Report (HTML)</button>
+        <button class="btn-ghost" type="button" onclick="saveBackupJSON()">Backup (JSON)</button>
         <button class="btn-ghost" type="button" onclick="triggerImport()">Import Backup</button>
         <button class="btn-danger" type="button" onclick="clearAll()">Clear All</button>
         <input id="importFile" type="file" accept="application/json" style="display:none" />
       </div>
 
       <div class="tiny">
-        Notes:
-        <br>• Android/Chrome: you may get a “Save file” picker (best behavior).
-        <br>• iPhone/Safari: it may open the file—use Share → <strong>Save to Files</strong> (that’s normal Safari behavior).
+        Best option: <strong>Save Fillable Report (HTML)</strong>. It downloads a readable, form-style document you can open and keep in Files/Drive.
       </div>
     </div>
 
@@ -349,21 +349,18 @@
   <div class="fabbar">
     <div class="fabbar-inner">
       <button class="fab" type="button" onclick="addScaffold()">+ Add Scaffold</button>
-      <button class="fab-secondary" type="button" onclick="saveToPhoneJSON()">Save</button>
-      <button class="fab-secondary" type="button" onclick="exportCSV()">CSV</button>
+      <button class="fab-secondary" type="button" onclick="saveFillableReportHTML()">Save Report</button>
+      <button class="fab-secondary" type="button" onclick="saveBackupJSON()">Backup</button>
     </div>
   </div>
 
 <script>
 /* ==========================================================
-   Mobile Scaffold Tracker + "Save to Phone" that downloads files
-   - Autosave in localStorage
-   - JSON backup + CSV export
-   - Import backup
-   - Auto row color + counters + not-inspected warning
+   Mobile Scaffold Tracker
+   + Generates READABLE, FILLABLE DOCUMENT export (HTML report)
    ========================================================== */
 
-const STORAGE_KEY = "scaffold_tracker_mobile_v3";
+const STORAGE_KEY = "scaffold_tracker_mobile_report_v1";
 
 function uid(){
   return "s_" + Math.random().toString(36).slice(2,10) + Date.now().toString(36);
@@ -422,7 +419,6 @@ function loadLocal(){
 
 /* ---- Force file saving across platforms ---- */
 async function downloadBlobSmart(filename, blob){
-  // Android/Chrome/Edge (best): Save picker
   if (window.showSaveFilePicker) {
     try{
       const ext = "." + (filename.split(".").pop() || "txt");
@@ -437,12 +433,8 @@ async function downloadBlobSmart(filename, blob){
       await writable.write(blob);
       await writable.close();
       return;
-    }catch(e){
-      // user cancelled or not permitted => fallback
-    }
+    }catch(e){}
   }
-
-  // Fallback: anchor download (iPhone Safari may open; user saves via Share → Save to Files)
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
@@ -458,7 +450,16 @@ function safeFilenameBase(){
   const date = (document.getElementById("reportDate").value || new Date().toISOString().slice(0,10));
   const proj = (document.getElementById("projectName").value || "project")
     .trim().replace(/[^\w\-]+/g, "_").slice(0,40);
-  return `${proj}_scaffold_tracker_${date}`;
+  return `${proj}_scaffold_report_${date}`;
+}
+
+function escHtml(s){
+  return String(s ?? "")
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#39;");
 }
 
 /* ---- UI Rendering ---- */
@@ -608,54 +609,152 @@ function addScaffold(){
   list.lastElementChild?.scrollIntoView?.({behavior:"smooth", block:"start"});
 }
 
-/* ---- Save to Phone (JSON) ---- */
-async function saveToPhoneJSON(){
+/* =======================
+   BACKUP (JSON)
+   ======================= */
+async function saveBackupJSON(){
   const data = JSON.stringify(getState(), null, 2);
   const blob = new Blob([data], { type: "application/json;charset=utf-8" });
-  await downloadBlobSmart(`${safeFilenameBase()}.json`, blob);
+  await downloadBlobSmart(`${safeFilenameBase()}_backup.json`, blob);
 }
 
-/* ---- Export CSV ---- */
-function csvEscape(v){
-  const s = String(v ?? "");
-  if(/[",\n]/.test(s)) return `"${s.replace(/"/g,'""')}"`;
-  return s;
-}
-
-async function exportCSV(){
+/* =======================
+   READABLE FILLABLE REPORT EXPORT (HTML)
+   ======================= */
+function buildReportHTML({printable=false} = {}){
   const state = getState();
+  const m = state.meta;
   const rows = state.scaffolds;
 
-  const header = ["Tag","Location","Inspected","Status","Notes"];
-  const lines = [header.join(",")];
+  const tableRows = rows.map((r,i)=>{
+    const inspected = r.inspected ? "Yes" : "No";
+    return `
+      <tr>
+        <td><input value="${escHtml(r.tag)}" /></td>
+        <td><input value="${escHtml(r.location)}" /></td>
+        <td style="text-align:center;"><input type="checkbox" ${r.inspected ? "checked":""}></td>
+        <td>
+          <select>
+            <option value=""></option>
+            <option ${r.status==="Green"?"selected":""}>Green</option>
+            <option ${r.status==="Yellow"?"selected":""}>Yellow</option>
+            <option ${r.status==="Red"?"selected":""}>Red</option>
+          </select>
+        </td>
+        <td><input value="${escHtml(r.notes)}" /></td>
+      </tr>
+    `;
+  }).join("");
 
-  rows.forEach(r=>{
-    lines.push([
-      csvEscape(r.tag),
-      csvEscape(r.location),
-      csvEscape(r.inspected ? "YES" : "NO"),
-      csvEscape(r.status),
-      csvEscape(r.notes)
-    ].join(","));
-  });
+  const css = `
+    :root{ --ink:#111; --muted:#4b5563; --line:#cfd4da; --bar:#1f2937; --light:#f3f4f6; }
+    *{ box-sizing:border-box; }
+    body{ font-family: Arial, Helvetica, sans-serif; margin:0; color:var(--ink); background:#fff; }
+    header{ background:var(--bar); color:#fff; padding:14px 16px; }
+    header h1{ margin:0; font-size:18px; }
+    .wrap{ max-width:1000px; margin:0 auto; padding:16px; }
+    .section{ margin-top:14px; }
+    .title{ background:var(--light); padding:8px 10px; font-weight:700; border-left:4px solid var(--bar); }
+    table{ width:100%; border-collapse:collapse; margin-top:8px; }
+    th,td{ border:1px solid var(--line); padding:8px; font-size:13px; vertical-align:top; }
+    th{ background:#e5e7eb; }
+    input, select, textarea{
+      width:100%;
+      border:1px solid var(--line);
+      padding:8px;
+      border-radius:6px;
+      font-size:13px;
+    }
+    input[type="checkbox"]{ width:18px; height:18px; }
+    textarea{ min-height:90px; }
+    .grid3{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-top:8px; }
+    .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:8px; }
+    .hint{ color:var(--muted); font-size:12px; margin-top:8px; }
+    .img{ width:100%; max-width:360px; border:1px solid var(--line); border-radius:10px; display:block; margin:8px auto 0; }
+    ${printable ? `
+      @page { size: Letter; margin: 0.55in; }
+      @media print{
+        header{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        .title{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      }
+    ` : ``}
+  `;
 
-  const metaLines = [
-    `Project Name:,${csvEscape(state.meta.projectName)}`,
-    `Date:,${csvEscape(state.meta.reportDate)}`,
-    `Competent Person:,${csvEscape(state.meta.competentPerson)}`,
-    ``,
-    `Scaffold Tag Tracker`
-  ];
+  return `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Scaffold Report</title>
+<style>${css}</style>
+</head>
+<body>
+<header>
+  <h1>Scaffolding Inspection & Tag Tracking Report</h1>
+</header>
 
-  const csv = metaLines.join("\n") + "\n" + lines.join("\n");
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
-  await downloadBlobSmart(`${safeFilenameBase()}.csv`, blob);
+<div class="wrap">
+  <div class="section">
+    <div class="title">Project Information</div>
+    <div class="grid3">
+      <div><label>Project Name</label><input value="${escHtml(m.projectName)}"></div>
+      <div><label>Date</label><input value="${escHtml(m.reportDate)}"></div>
+      <div><label>Competent Person</label><input value="${escHtml(m.competentPerson)}"></div>
+    </div>
+    <img class="img" src="scaffold-checklist.png" alt="Scaffold Checklist">
+    <div class="hint">This is a readable, fillable report file. You can edit it and re-save it from your phone/computer.</div>
+  </div>
+
+  <div class="section">
+    <div class="title">Scaffold Tag Tracker</div>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:120px;">Tag #</th>
+          <th style="width:180px;">Location</th>
+          <th style="width:110px; text-align:center;">Inspected</th>
+          <th style="width:130px;">Status</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${tableRows || `<tr><td colspan="5">No scaffold entries.</td></tr>`}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section">
+    <div class="title">Deficiencies / Corrective Actions</div>
+    <textarea>${escHtml(m.globalNotes)}</textarea>
+  </div>
+
+  <div class="section">
+    <div class="title">Inspector Verification</div>
+    <div class="grid2">
+      <div><label>Inspector Name</label><input value="${escHtml(m.inspectorName)}"></div>
+      <div><label>Signature / Initials</label><input value="${escHtml(m.inspectorSig)}"></div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>`;
+}
+
+async function saveFillableReportHTML(){
+  const html = buildReportHTML({printable:false});
+  const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+  await downloadBlobSmart(`${safeFilenameBase()}.html`, blob);
+}
+
+async function savePrintableReportHTML(){
+  const html = buildReportHTML({printable:true});
+  const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+  await downloadBlobSmart(`${safeFilenameBase()}_PRINT.html`, blob);
 }
 
 /* ---- Import Backup ---- */
-function triggerImport(){
-  document.getElementById("importFile").click();
-}
+function triggerImport(){ document.getElementById("importFile").click(); }
 
 document.getElementById("importFile").addEventListener("change", async (e) => {
   const file = e.target.files && e.target.files[0];
@@ -704,7 +803,6 @@ function clearAll(){
 (function init(){
   const saved = loadLocal();
 
-  // default date today
   const today = new Date();
   const yyyy = today.getFullYear();
   const mm = String(today.getMonth()+1).padStart(2,"0");
