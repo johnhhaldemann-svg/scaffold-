@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Scaffold Tag Tracker (Mobile)</title>
 
-  <!-- iOS "Add to Home Screen" support -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
@@ -13,16 +12,15 @@
     :root{
       --bg:#0b1220;
       --card:#111b2e;
-      --card2:#0f172a;
       --ink:#e5e7eb;
       --muted:#9ca3af;
       --line:rgba(255,255,255,0.10);
       --accent:#60a5fa;
 
-      --okbg: rgba(16,185,129,0.16);   /* green */
-      --warnbg: rgba(245,158,11,0.18); /* yellow */
-      --badbg: rgba(239,68,68,0.18);   /* red */
-      --nibg: rgba(99,102,241,0.18);   /* not-inspected */
+      --okbg: rgba(16,185,129,0.16);
+      --warnbg: rgba(245,158,11,0.18);
+      --badbg: rgba(239,68,68,0.18);
+      --nibg: rgba(99,102,241,0.18);
     }
 
     *{ box-sizing:border-box; }
@@ -36,7 +34,6 @@
       color:var(--ink);
     }
 
-    /* Top app bar */
     .appbar{
       position:sticky;
       top:0;
@@ -46,12 +43,7 @@
       border-bottom:1px solid var(--line);
       padding: env(safe-area-inset-top) 14px 10px 14px;
     }
-    .appbar h1{
-      margin:0;
-      font-size:16px;
-      font-weight:700;
-      letter-spacing:0.2px;
-    }
+    .appbar h1{ margin:0; font-size:16px; font-weight:800; }
     .appbar .sub{
       margin-top:4px;
       font-size:12px;
@@ -62,7 +54,7 @@
     .wrap{
       max-width: 980px;
       margin: 0 auto;
-      padding: 12px 14px calc(100px + env(safe-area-inset-bottom)) 14px;
+      padding: 12px 14px calc(120px + env(safe-area-inset-bottom)) 14px;
     }
 
     .card{
@@ -77,12 +69,11 @@
       margin:0 0 10px 0;
       font-size:13px;
       color: var(--muted);
-      font-weight:700;
+      font-weight:800;
       letter-spacing:0.4px;
       text-transform:uppercase;
     }
 
-    /* Inputs */
     label{ display:block; font-size:12px; color:var(--muted); margin-bottom:6px; }
     input[type="text"], input[type="date"], select, textarea{
       width:100%;
@@ -96,17 +87,12 @@
     }
     textarea{ min-height: 88px; resize: vertical; }
 
-    .row{
-      display:grid;
-      grid-template-columns: 1fr;
-      gap:10px;
-    }
+    .row{ display:grid; grid-template-columns: 1fr; gap:10px; }
     @media (min-width: 720px){
       .row.two{ grid-template-columns: 1fr 1fr; }
       .row.three{ grid-template-columns: 1fr 1fr 1fr; }
     }
 
-    /* Badges / summary */
     .badges{
       display:flex;
       flex-wrap:wrap;
@@ -119,12 +105,10 @@
       border:1px solid var(--line);
       background: rgba(15,23,42,0.65);
       font-size:13px;
-      color:var(--ink);
     }
     .badge strong{ font-size:14px; }
     .badge.warn{ border-color: rgba(245,158,11,0.35); background: rgba(245,158,11,0.10); }
 
-    /* Warning box */
     .alert{
       margin-top:10px;
       border:1px solid rgba(245,158,11,0.35);
@@ -133,11 +117,10 @@
       padding:10px 12px;
       display:none;
     }
-    .alert .t{ font-weight:800; font-size:13px; }
-    .alert ul{ margin:8px 0 0 18px; padding:0; color:var(--ink); }
+    .alert .t{ font-weight:900; font-size:13px; }
+    .alert ul{ margin:8px 0 0 18px; padding:0; }
     .alert li{ margin:4px 0; font-size:13px; }
 
-    /* Scaffold list */
     .scaffold-item{
       border:1px solid var(--line);
       background: rgba(15,23,42,0.65);
@@ -171,7 +154,6 @@
       color:var(--muted);
       white-space:nowrap;
     }
-
     .toggle{
       display:flex;
       align-items:center;
@@ -183,7 +165,6 @@
       accent-color: var(--accent);
     }
 
-    /* Buttons */
     .btn-row{
       display:flex;
       flex-wrap:wrap;
@@ -194,7 +175,7 @@
       border-radius:14px;
       padding:12px 14px;
       font-size:14px;
-      font-weight:800;
+      font-weight:900;
       cursor:pointer;
     }
     .btn{
@@ -202,21 +183,17 @@
       color: var(--ink);
       border:1px solid rgba(96,165,250,0.35);
     }
-    .btn:active{ transform: scale(0.99); }
-
     .btn-ghost{
       background: transparent;
       color: var(--muted);
       border:1px solid var(--line);
     }
-
     .btn-danger{
       background: rgba(239,68,68,0.16);
       color: var(--ink);
       border:1px solid rgba(239,68,68,0.35);
     }
 
-    /* Floating action bar */
     .fabbar{
       position:fixed;
       left:0; right:0; bottom:0;
@@ -242,7 +219,7 @@
       padding:14px 14px;
       border-radius:16px;
       font-size:15px;
-      font-weight:900;
+      font-weight:950;
     }
     .fab-secondary{
       width:auto;
@@ -252,7 +229,8 @@
       padding:14px 12px;
       border-radius:16px;
       font-size:13px;
-      font-weight:800;
+      font-weight:900;
+      white-space:nowrap;
     }
 
     .tiny{
@@ -262,15 +240,17 @@
       margin-top:10px;
     }
 
-    /* Print */
-    @media print{
-      .fabbar, .btn-row, .tiny{ display:none !important; }
-      body{ background:#fff; color:#000; }
-      .appbar{ position:static; background:#fff; color:#000; border:none; }
-      .card, .scaffold-item{ box-shadow:none; background:#fff; color:#000; border:1px solid #ccc; }
-      input, select, textarea{ border:1px solid #ccc; background:#fff; color:#000; }
-      .badge{ background:#fff; border:1px solid #ccc; color:#000; }
-      .alert{ display:none !important; }
+    .imgwrap{
+      display:flex;
+      justify-content:center;
+    }
+    .imgwrap img{
+      width:100%;
+      max-width:520px;
+      display:block;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background:rgba(0,0,0,0.12);
     }
   </style>
 </head>
@@ -278,7 +258,7 @@
 <body>
   <div class="appbar">
     <h1>Scaffold Tag Tracker (Mobile)</h1>
-    <div class="sub">Autosaves on your phone • Works offline (local storage) • Print/Save as PDF anytime</div>
+    <div class="sub">Autosaves on your phone • Tap “Save to Phone” to download a file (no printing)</div>
   </div>
 
   <div class="wrap">
@@ -312,14 +292,15 @@
       </div>
 
       <div class="tiny">
-        Tip: On iPhone/Android, open this file in your browser → Share/More → <strong>Add to Home Screen</strong> (optional).
+        Tip: If you want app-like access: open this page → Share/More → <strong>Add to Home Screen</strong>.
       </div>
     </div>
 
     <div class="card">
       <h2>Quick Reference Visual</h2>
-      <!-- Put the image in the same folder as this HTML and name it scaffold-checklist.png -->
-      <img src="scaffold-checklist.png" alt="Scaffold Checklist" style="width:100%; max-width:520px; display:block; margin:0 auto; border-radius:14px; border:1px solid var(--line); background:rgba(0,0,0,0.12);" />
+      <div class="imgwrap">
+        <img src="scaffold-checklist.png" alt="Scaffold Checklist">
+      </div>
       <div class="tiny">Image not showing? Make sure the file is named <strong>scaffold-checklist.png</strong> and is in the same folder as this HTML.</div>
     </div>
 
@@ -330,15 +311,19 @@
 
       <div class="btn-row" style="margin-top:12px;">
         <button class="btn" type="button" onclick="addScaffold()">+ Add Scaffold</button>
-        <button class="btn-ghost" type="button" onclick="window.print()">Print / Save as PDF</button>
-        <button class="btn-ghost" type="button" onclick="downloadBackup()">Export Backup (JSON)</button>
+
+        <!-- ✅ SAVE TO PHONE (NO PRINT) -->
+        <button class="btn" type="button" onclick="saveToPhoneJSON()">Save to Phone (JSON)</button>
+        <button class="btn-ghost" type="button" onclick="exportCSV()">Export CSV</button>
+
         <button class="btn-ghost" type="button" onclick="triggerImport()">Import Backup</button>
         <button class="btn-danger" type="button" onclick="clearAll()">Clear All</button>
+
         <input id="importFile" type="file" accept="application/json" style="display:none" />
       </div>
 
       <div class="tiny">
-        Auto-highlighting: row turns Green/Yellow/Red by status. If NOT inspected, it gets a blue outline/highlight and appears in the warning list.
+        “Save to Phone (JSON)” downloads a backup you can store in Files/Drive/OneDrive and re-import later.
       </div>
     </div>
 
@@ -363,40 +348,39 @@
 
   </div>
 
-  <!-- Bottom bar for mobile one-hand use -->
   <div class="fabbar">
     <div class="fabbar-inner">
       <button class="fab" type="button" onclick="addScaffold()">+ Add Scaffold</button>
-      <button class="fab-secondary" type="button" onclick="window.print()">Print/PDF</button>
+      <button class="fab-secondary" type="button" onclick="saveToPhoneJSON()">Save</button>
+      <button class="fab-secondary" type="button" onclick="exportCSV()">CSV</button>
     </div>
   </div>
 
 <script>
 /* =========================
-   Mobile Scaffold Tracker
-   - Responsive card layout (each scaffold is a card)
-   - Auto color highlighting (status)
-   - Total counter + inspected + not inspected
-   - Warning list of not-inspected tags
-   - Autosave to phone via localStorage
-   - Export/Import JSON backup
+   Mobile Scaffold Tracker + Save-to-Phone
    ========================= */
 
-const STORAGE_KEY = "scaffold_tracker_mobile_v1";
+const STORAGE_KEY = "scaffold_tracker_mobile_v2";
 
 function uid(){
   return "s_" + Math.random().toString(36).slice(2,10) + Date.now().toString(36);
 }
 
 function defaultScaffold(){
-  return {
-    id: uid(),
-    tag: "",
-    location: "",
-    inspected: false,
-    status: "",
-    notes: ""
-  };
+  return { id: uid(), tag:"", location:"", inspected:false, status:"", notes:"" };
+}
+
+function readScaffoldsFromDOM(){
+  const cards = Array.from(document.querySelectorAll(".scaffold-item"));
+  return cards.map(card => ({
+    id: card.dataset.id,
+    tag: card.querySelector(".f-tag").value || "",
+    location: card.querySelector(".f-loc").value || "",
+    inspected: !!card.querySelector(".f-inspected").checked,
+    status: card.querySelector(".f-status").value || "",
+    notes: card.querySelector(".f-notes").value || ""
+  }));
 }
 
 function getState(){
@@ -422,41 +406,16 @@ function setMeta(meta){
   document.getElementById("inspectorSig").value = meta.inspectorSig || "";
 }
 
-function save(){
-  try{
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(getState()));
-  }catch(e){
-    // If storage full or blocked, we silently continue.
-  }
+function saveLocal(){
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(getState())); }catch(e){}
 }
 
-function load(){
+function loadLocal(){
   try{
     const raw = localStorage.getItem(STORAGE_KEY);
     if(!raw) return null;
     return JSON.parse(raw);
-  }catch(e){
-    return null;
-  }
-}
-
-function readScaffoldsFromDOM(){
-  const cards = Array.from(document.querySelectorAll(".scaffold-item"));
-  return cards.map(card => ({
-    id: card.dataset.id,
-    tag: card.querySelector(".f-tag").value || "",
-    location: card.querySelector(".f-loc").value || "",
-    inspected: !!card.querySelector(".f-inspected").checked,
-    status: card.querySelector(".f-status").value || "",
-    notes: card.querySelector(".f-notes").value || ""
-  }));
-}
-
-function renderAll(scaffolds){
-  const list = document.getElementById("scaffoldList");
-  list.innerHTML = "";
-  scaffolds.forEach(s => list.appendChild(renderCard(s)));
-  updateSummary();
+  }catch(e){ return null; }
 }
 
 function renderCard(s){
@@ -476,11 +435,11 @@ function renderCard(s){
     <div class="row two">
       <div>
         <label>Tag #</label>
-        <input class="f-tag" type="text" inputmode="text" placeholder="e.g., 0123">
+        <input class="f-tag" type="text" placeholder="e.g., 0123">
       </div>
       <div>
         <label>Location</label>
-        <input class="f-loc" type="text" inputmode="text" placeholder="Area / Floor / Grid">
+        <input class="f-loc" type="text" placeholder="Area / Floor / Grid">
       </div>
     </div>
 
@@ -496,24 +455,22 @@ function renderCard(s){
       </div>
       <div>
         <label>Notes</label>
-        <input class="f-notes" type="text" inputmode="text" placeholder="Comments / issues found">
+        <input class="f-notes" type="text" placeholder="Comments / issues found">
       </div>
     </div>
 
     <div class="btn-row" style="margin-top:10px; justify-content:flex-end;">
-      <button class="btn-danger" type="button" aria-label="Remove scaffold">Remove</button>
+      <button class="btn-danger" type="button">Remove</button>
     </div>
   `;
 
-  // Set values
   card.querySelector(".f-tag").value = s.tag || "";
   card.querySelector(".f-loc").value = s.location || "";
   card.querySelector(".f-inspected").checked = !!s.inspected;
   card.querySelector(".f-status").value = s.status || "";
   card.querySelector(".f-notes").value = s.notes || "";
 
-  // Wire events
-  const onChange = () => { applyCardStyles(card); updateSummary(); save(); };
+  const onChange = () => { applyCardStyles(card); updateSummary(); saveLocal(); };
   card.querySelectorAll("input, select").forEach(el => {
     el.addEventListener("input", onChange);
     el.addEventListener("change", onChange);
@@ -522,12 +479,10 @@ function renderCard(s){
   card.querySelector(".btn-danger").addEventListener("click", () => {
     card.remove();
     updateSummary();
-    save();
+    saveLocal();
   });
 
-  // initial styles
   applyCardStyles(card);
-
   return card;
 }
 
@@ -593,34 +548,91 @@ function updateSummary(){
   }
 }
 
+function renderAll(scaffolds){
+  const list = document.getElementById("scaffoldList");
+  list.innerHTML = "";
+  scaffolds.forEach(s => list.appendChild(renderCard(s)));
+  updateSummary();
+}
+
 function addScaffold(){
   const list = document.getElementById("scaffoldList");
   const s = defaultScaffold();
   list.appendChild(renderCard(s));
   updateSummary();
-  save();
-
-  // Scroll new card into view for mobile
-  const last = list.lastElementChild;
-  if(last && last.scrollIntoView) last.scrollIntoView({behavior:"smooth", block:"start"});
+  saveLocal();
+  list.lastElementChild?.scrollIntoView?.({behavior:"smooth", block:"start"});
 }
 
-/* Export / Import */
-function downloadBackup(){
-  const data = JSON.stringify(getState(), null, 2);
-  const blob = new Blob([data], {type:"application/json"});
-  const url = URL.createObjectURL(blob);
-
-  const a = document.createElement("a");
+/* =========================
+   SAVE TO PHONE (DOWNLOAD)
+   ========================= */
+function safeFilenameBase(){
   const date = (document.getElementById("reportDate").value || new Date().toISOString().slice(0,10));
+  const proj = (document.getElementById("projectName").value || "project")
+    .trim().replace(/[^\w\-]+/g, "_").slice(0,40);
+  return `${proj}_scaffold_tracker_${date}`;
+}
+
+function downloadBlob(filename, blob){
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
   a.href = url;
-  a.download = `scaffold-tracker-backup-${date}.json`;
+  a.download = filename;
   document.body.appendChild(a);
   a.click();
   a.remove();
   URL.revokeObjectURL(url);
 }
 
+function saveToPhoneJSON(){
+  const data = JSON.stringify(getState(), null, 2);
+  const blob = new Blob([data], {type:"application/json"});
+  downloadBlob(`${safeFilenameBase()}.json`, blob);
+}
+
+/* =========================
+   CSV EXPORT
+   ========================= */
+function csvEscape(v){
+  const s = String(v ?? "");
+  if(/[",\n]/.test(s)) return `"${s.replace(/"/g,'""')}"`;
+  return s;
+}
+
+function exportCSV(){
+  const state = getState();
+  const rows = state.scaffolds;
+
+  const header = ["Tag","Location","Inspected","Status","Notes"];
+  const lines = [header.join(",")];
+
+  rows.forEach(r=>{
+    lines.push([
+      csvEscape(r.tag),
+      csvEscape(r.location),
+      csvEscape(r.inspected ? "YES" : "NO"),
+      csvEscape(r.status),
+      csvEscape(r.notes)
+    ].join(","));
+  });
+
+  const metaLines = [
+    `Project Name:,${csvEscape(state.meta.projectName)}`,
+    `Date:,${csvEscape(state.meta.reportDate)}`,
+    `Competent Person:,${csvEscape(state.meta.competentPerson)}`,
+    ``,
+    `Scaffold Tag Tracker`
+  ];
+
+  const csv = metaLines.join("\n") + "\n" + lines.join("\n");
+  const blob = new Blob([csv], {type:"text/csv;charset=utf-8"});
+  downloadBlob(`${safeFilenameBase()}.csv`, blob);
+}
+
+/* =========================
+   IMPORT BACKUP
+   ========================= */
 function triggerImport(){
   document.getElementById("importFile").click();
 }
@@ -632,7 +644,6 @@ document.getElementById("importFile").addEventListener("change", async (e) => {
   try{
     const text = await file.text();
     const data = JSON.parse(text);
-
     if(!data || typeof data !== "object" || !Array.isArray(data.scaffolds)){
       alert("Invalid backup file.");
       return;
@@ -648,7 +659,7 @@ document.getElementById("importFile").addEventListener("change", async (e) => {
       notes: s.notes || ""
     })));
 
-    save();
+    saveLocal();
     alert("Backup imported.");
   }catch(err){
     alert("Could not import. Make sure it's a valid JSON backup.");
@@ -665,15 +676,14 @@ function clearAll(){
 
 /* Autosave meta fields */
 ["projectName","reportDate","competentPerson","globalNotes","inspectorName","inspectorSig"].forEach(id=>{
-  document.getElementById(id).addEventListener("input", () => { updateSummary(); save(); });
-  document.getElementById(id).addEventListener("change", () => { updateSummary(); save(); });
+  document.getElementById(id).addEventListener("input", () => { updateSummary(); saveLocal(); });
+  document.getElementById(id).addEventListener("change", () => { updateSummary(); saveLocal(); });
 });
 
 /* Init */
 (function init(){
-  const saved = load();
+  const saved = loadLocal();
 
-  // Default date today if empty
   const today = new Date();
   const yyyy = today.getFullYear();
   const mm = String(today.getMonth()+1).padStart(2,"0");
@@ -682,7 +692,6 @@ function clearAll(){
 
   if(saved){
     setMeta(saved.meta || {});
-    // If saved date exists, keep it; else keep default today
     if(saved.meta && saved.meta.reportDate){
       document.getElementById("reportDate").value = saved.meta.reportDate;
     }
@@ -691,8 +700,7 @@ function clearAll(){
     renderAll([defaultScaffold()]);
   }
 
-  // Save immediately so first load persists
-  save();
+  saveLocal();
 })();
 </script>
 
