@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Scaffold Tag Tracker (Mobile)</title>
 
+  <!-- iOS "Add to Home Screen" support -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
@@ -43,7 +44,7 @@
       border-bottom:1px solid var(--line);
       padding: env(safe-area-inset-top) 14px 10px 14px;
     }
-    .appbar h1{ margin:0; font-size:16px; font-weight:800; }
+    .appbar h1{ margin:0; font-size:16px; font-weight:900; }
     .appbar .sub{
       margin-top:4px;
       font-size:12px;
@@ -69,7 +70,7 @@
       margin:0 0 10px 0;
       font-size:13px;
       color: var(--muted);
-      font-weight:800;
+      font-weight:900;
       letter-spacing:0.4px;
       text-transform:uppercase;
     }
@@ -117,7 +118,7 @@
       padding:10px 12px;
       display:none;
     }
-    .alert .t{ font-weight:900; font-size:13px; }
+    .alert .t{ font-weight:950; font-size:13px; }
     .alert ul{ margin:8px 0 0 18px; padding:0; }
     .alert li{ margin:4px 0; font-size:13px; }
 
@@ -175,7 +176,7 @@
       border-radius:14px;
       padding:12px 14px;
       font-size:14px;
-      font-weight:900;
+      font-weight:950;
       cursor:pointer;
     }
     .btn{
@@ -258,7 +259,7 @@
 <body>
   <div class="appbar">
     <h1>Scaffold Tag Tracker (Mobile)</h1>
-    <div class="sub">Autosaves on your phone • Tap “Save to Phone” to download a file (no printing)</div>
+    <div class="sub">Autosaves on your phone • Use “Save to Phone” to download a real file (no printing)</div>
   </div>
 
   <div class="wrap">
@@ -292,7 +293,7 @@
       </div>
 
       <div class="tiny">
-        Tip: If you want app-like access: open this page → Share/More → <strong>Add to Home Screen</strong>.
+        Tip: For app-like access: open this page → Share/More → <strong>Add to Home Screen</strong>.
       </div>
     </div>
 
@@ -301,29 +302,26 @@
       <div class="imgwrap">
         <img src="scaffold-checklist.png" alt="Scaffold Checklist">
       </div>
-      <div class="tiny">Image not showing? Make sure the file is named <strong>scaffold-checklist.png</strong> and is in the same folder as this HTML.</div>
+      <div class="tiny">Image not showing? Ensure the file is named <strong>scaffold-checklist.png</strong> and is in the same folder as this HTML.</div>
     </div>
 
     <div class="card">
       <h2>Scaffold Tag Tracker</h2>
-
       <div id="scaffoldList"></div>
 
       <div class="btn-row" style="margin-top:12px;">
         <button class="btn" type="button" onclick="addScaffold()">+ Add Scaffold</button>
-
-        <!-- ✅ SAVE TO PHONE (NO PRINT) -->
         <button class="btn" type="button" onclick="saveToPhoneJSON()">Save to Phone (JSON)</button>
         <button class="btn-ghost" type="button" onclick="exportCSV()">Export CSV</button>
-
         <button class="btn-ghost" type="button" onclick="triggerImport()">Import Backup</button>
         <button class="btn-danger" type="button" onclick="clearAll()">Clear All</button>
-
         <input id="importFile" type="file" accept="application/json" style="display:none" />
       </div>
 
       <div class="tiny">
-        “Save to Phone (JSON)” downloads a backup you can store in Files/Drive/OneDrive and re-import later.
+        Notes:
+        <br>• Android/Chrome: you may get a “Save file” picker (best behavior).
+        <br>• iPhone/Safari: it may open the file—use Share → <strong>Save to Files</strong> (that’s normal Safari behavior).
       </div>
     </div>
 
@@ -357,11 +355,15 @@
   </div>
 
 <script>
-/* =========================
-   Mobile Scaffold Tracker + Save-to-Phone
-   ========================= */
+/* ==========================================================
+   Mobile Scaffold Tracker + "Save to Phone" that downloads files
+   - Autosave in localStorage
+   - JSON backup + CSV export
+   - Import backup
+   - Auto row color + counters + not-inspected warning
+   ========================================================== */
 
-const STORAGE_KEY = "scaffold_tracker_mobile_v2";
+const STORAGE_KEY = "scaffold_tracker_mobile_v3";
 
 function uid(){
   return "s_" + Math.random().toString(36).slice(2,10) + Date.now().toString(36);
@@ -418,6 +420,48 @@ function loadLocal(){
   }catch(e){ return null; }
 }
 
+/* ---- Force file saving across platforms ---- */
+async function downloadBlobSmart(filename, blob){
+  // Android/Chrome/Edge (best): Save picker
+  if (window.showSaveFilePicker) {
+    try{
+      const ext = "." + (filename.split(".").pop() || "txt");
+      const handle = await window.showSaveFilePicker({
+        suggestedName: filename,
+        types: [{
+          description: "File",
+          accept: { [blob.type || "application/octet-stream"]: [ext] }
+        }]
+      });
+      const writable = await handle.createWritable();
+      await writable.write(blob);
+      await writable.close();
+      return;
+    }catch(e){
+      // user cancelled or not permitted => fallback
+    }
+  }
+
+  // Fallback: anchor download (iPhone Safari may open; user saves via Share → Save to Files)
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.rel = "noopener";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url), 1500);
+}
+
+function safeFilenameBase(){
+  const date = (document.getElementById("reportDate").value || new Date().toISOString().slice(0,10));
+  const proj = (document.getElementById("projectName").value || "project")
+    .trim().replace(/[^\w\-]+/g, "_").slice(0,40);
+  return `${proj}_scaffold_tracker_${date}`;
+}
+
+/* ---- UI Rendering ---- */
 function renderCard(s){
   const card = document.createElement("div");
   card.className = "scaffold-item";
@@ -564,43 +608,21 @@ function addScaffold(){
   list.lastElementChild?.scrollIntoView?.({behavior:"smooth", block:"start"});
 }
 
-/* =========================
-   SAVE TO PHONE (DOWNLOAD)
-   ========================= */
-function safeFilenameBase(){
-  const date = (document.getElementById("reportDate").value || new Date().toISOString().slice(0,10));
-  const proj = (document.getElementById("projectName").value || "project")
-    .trim().replace(/[^\w\-]+/g, "_").slice(0,40);
-  return `${proj}_scaffold_tracker_${date}`;
-}
-
-function downloadBlob(filename, blob){
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
-}
-
-function saveToPhoneJSON(){
+/* ---- Save to Phone (JSON) ---- */
+async function saveToPhoneJSON(){
   const data = JSON.stringify(getState(), null, 2);
-  const blob = new Blob([data], {type:"application/json"});
-  downloadBlob(`${safeFilenameBase()}.json`, blob);
+  const blob = new Blob([data], { type: "application/json;charset=utf-8" });
+  await downloadBlobSmart(`${safeFilenameBase()}.json`, blob);
 }
 
-/* =========================
-   CSV EXPORT
-   ========================= */
+/* ---- Export CSV ---- */
 function csvEscape(v){
   const s = String(v ?? "");
   if(/[",\n]/.test(s)) return `"${s.replace(/"/g,'""')}"`;
   return s;
 }
 
-function exportCSV(){
+async function exportCSV(){
   const state = getState();
   const rows = state.scaffolds;
 
@@ -626,13 +648,11 @@ function exportCSV(){
   ];
 
   const csv = metaLines.join("\n") + "\n" + lines.join("\n");
-  const blob = new Blob([csv], {type:"text/csv;charset=utf-8"});
-  downloadBlob(`${safeFilenameBase()}.csv`, blob);
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+  await downloadBlobSmart(`${safeFilenameBase()}.csv`, blob);
 }
 
-/* =========================
-   IMPORT BACKUP
-   ========================= */
+/* ---- Import Backup ---- */
 function triggerImport(){
   document.getElementById("importFile").click();
 }
@@ -684,6 +704,7 @@ function clearAll(){
 (function init(){
   const saved = loadLocal();
 
+  // default date today
   const today = new Date();
   const yyyy = today.getFullYear();
   const mm = String(today.getMonth()+1).padStart(2,"0");
